@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>로그인</h1>
+    <p id="message" style="color: red;"></p>
+    <form id="loginForm">
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id" required>
+        <br>
+        <label for="pw">PW:</label>
+        <input type="password" id="pw" name="pw" required>
+        <br>
+        <button type="submit">로그인</button>
+    </form>
+    <button class="button" onclick="location.href='/'">돌아가기</button>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 폼이 제출될 때 새로고침되는 걸 막음
+    
+            const id = document.getElementById('id').value;
+            const pw = document.getElementById('pw').value;
+            const messageElement = document.getElementById('message');
+            
+            // 서버 api로 요청한다
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, pw })
+            })
+            // 응답이 오면 처리한다
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200 && body.accessToken) {
+                    localStorage.setItem('accessToken', body.accessToken);
+                    alert('로그인 성공!');
+                    window.location.href = '/'; // 메인 페이지로 리디렉션
+                } else {
+                    messageElement.textContent = body.message || '로그인 실패'; // 메시지를 페이지에 표시
+                }
+            })
+            .catch(error => {
+                messageElement.textContent = '로그인 중 오류가 발생했습니다.';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+    
+</body>
+</html>
