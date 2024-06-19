@@ -138,6 +138,25 @@ app.post('/update_process', (request, response) => {
 app.post('/delete_process', (request, response) => {
   topic.delete_process(request, response);
 });
+// 댓글 작성 기능
+app.post('/createComment', (request, response) => {
+  // 댓글내용
+  let body = request.body;
+  let comment = body.comment;
+  let topicid = body.topicid;
+
+  let sql = `INSERT INTO comment (text, topicid) VALUES(?, ?)`;
+  db.query(sql, [comment, topicid], function(error, result){
+    if(error) {
+      throw error;
+    }
+
+    // 댓글 작성 성공 시
+    if(result.affectedRows === 1) {
+      response.redirect(`/?id=${topicid}`);
+    }
+  });
+});
 
 
 
